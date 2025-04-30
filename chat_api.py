@@ -6,7 +6,7 @@ import os
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
-CORS(app)  # ← חשוב: זה פותר את בעיית ה־CORS
+CORS(app, resources={r"/api/*": {"origins": "*"}}, methods=["POST"])
 
 SYSTEM_PROMPT = """
 אתה עוזר להורים לתכנן מסיבת יום הולדת. אתה ממליץ אך ורק על ערכות מתוך האתר https://www.t-hafalot.co.il.
