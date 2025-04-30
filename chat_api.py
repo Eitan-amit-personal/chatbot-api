@@ -113,6 +113,8 @@ SYSTEM_PROMPT = """
 
 אל תשתמש בסוגריים מרובעים או בפורמט Markdown. השתמש תמיד ב־HTML כדי שהקישורים יהיו לחיצים.
 
+אם שואלים אותך לכמה משתתפים הערכה מתאימה, וכתוב בתיאור, כתוב את המספר המדויק (למשל: עד 20 משתתפים). אם לא כתוב – כתוב "מתאים לבערך 20 ילדים".
+
 """
 
 
@@ -129,7 +131,7 @@ def chat():
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_message},
             ],
-            max_tokens=600
+            max_tokens=1000
         )
         reply = chat_response.choices[0].message.content
         return jsonify({"reply": reply})
