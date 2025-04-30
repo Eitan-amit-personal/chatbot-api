@@ -1,13 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import openai
+from openai import OpenAI
 import os
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = Flask(__name__)
-
-# ה־CORS הכי פתוח, כולל הרשאות OPTIONS
 CORS(app, resources={r"/api/*": {"origins": "*"}}, allow_headers="*", methods=["POST", "OPTIONS"])
 
 SYSTEM_PROMPT = """
@@ -22,7 +20,7 @@ def chat():
         if not user_message:
             return jsonify({"reply": "שגיאה: לא התקבל טקסט מהמשתמש"}), 400
 
-        response = openai.ChatCompletion.create(
+        chat_response = client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -30,7 +28,7 @@ def chat():
             ],
             max_tokens=600
         )
-        reply = response.choices[0].message["content"]
+        reply = chat_response.choices[0].message.content
         return jsonify({"reply": reply})
     except Exception as e:
         return jsonify({"reply": f"שגיאה בשרת: {str(e)}"}), 500
