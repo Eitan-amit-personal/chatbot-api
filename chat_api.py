@@ -2,10 +2,13 @@
 from flask import Flask, request, jsonify
 import openai
 import os
+from flask_cors import CORS
+
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
+CORS(app)
 
 # פרומפט קבוע כדי להגביל המלצות רק לערכות באתר שלך
 SYSTEM_PROMPT = """
