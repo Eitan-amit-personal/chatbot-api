@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import openai
 import os
@@ -6,35 +6,22 @@ import os
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+
+# ה־CORS הכי פתוח, כולל הרשאות OPTIONS
+CORS(app, resources={r"/api/*": {"origins": "*"}}, allow_headers="*", methods=["POST", "OPTIONS"])
 
 SYSTEM_PROMPT = """
 אתה עוזר להורים לתכנן מסיבת יום הולדת. אתה ממליץ אך ורק על ערכות מתוך האתר https://www.t-hafalot.co.il.
 בשום אופן אל תזכיר אתרים חיצוניים. השאל את ההורים שאלות כדי להבין את הגיל, התחביבים, המקום והכמות.
 """
 
-@app.after_request
-def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-    return response
-
-@app.route("/api/chat", methods=["POST", "OPTIONS"])
+@app.route("/api/chat", methods=["POST"])
 def chat():
-    if request.method == "OPTIONS":
-        # תשובה ידנית ל־preflight
-        response = make_response()
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-        return response
-
-    user_message = request.json.get("message", "")
-    if not user_message:
-        return jsonify({"reply": "שגיאה: לא התקבל טקסט מהמשתמש"}), 400
-
     try:
+        user_message = request.json.get("message", "")
+        if not user_message:
+            return jsonify({"reply": "שגיאה: לא התקבל טקסט מהמשתמש"}), 400
+
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
